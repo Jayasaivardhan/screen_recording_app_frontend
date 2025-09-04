@@ -7,7 +7,8 @@ function App() {
   const [time, setTime] = useState(0);
   const timerRef = useRef(null);
 
-  const API_BASE = "http://localhost:5000"; // backend
+  // 🌐 Backend API (Render deployment)
+  const API_BASE = "https://screen-recording-app-backened-2.onrender.com";
 
   const formatTime = (seconds) => {
     const mins = String(Math.floor(seconds / 60)).padStart(2, "0");
