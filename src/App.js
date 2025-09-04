@@ -7,7 +7,7 @@ function App() {
   const [time, setTime] = useState(0);
   const timerRef = useRef(null);
 
-  // 🌐 Backend API (Render deployment)
+  // 🌐 Backend API
   const API_BASE = "https://screen-recording-app-backened-2.onrender.com";
 
   const formatTime = (seconds) => {
@@ -16,7 +16,7 @@ function App() {
     return `${mins}:${secs}`;
   };
 
-  // ✅ Load recordings from backend
+  // ✅ Load recordings
   const loadRecordings = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/recordings`);
@@ -70,7 +70,7 @@ function App() {
             body: formData,
           });
           if (res.ok) {
-            await loadRecordings(); // refresh list after upload
+            await loadRecordings(); // refresh list
           } else {
             const data = await res.json();
             console.error("Upload failed:", data.error);
@@ -90,7 +90,7 @@ function App() {
       timerRef.current = setInterval(() => {
         setTime((prev) => {
           if (prev + 1 >= 180) {
-            stopRecording(); // auto-stop
+            stopRecording();
           }
           return prev + 1;
         });
@@ -102,7 +102,7 @@ function App() {
 
   const stopRecording = () => {
     if (mediaRecorder) {
-      clearInterval(timerRef.current); // stop timer immediately
+      clearInterval(timerRef.current);
       setRecording(false);
       mediaRecorder.stop();
     }
@@ -162,13 +162,13 @@ function App() {
             className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition"
           >
             <video
-              src={`${API_BASE}/${rec.filepath}`}
+              src={`${API_BASE}/${rec.filepath}`} // ✅ use filepath
               controls
               className="rounded-lg w-full h-40 object-cover bg-black"
             />
             <div className="flex gap-4 mt-3">
               <a
-                href={`${API_BASE}/${rec.filepath}`}
+                href={`${API_BASE}/${rec.filepath}`} // ✅ download also filepath
                 download={rec.filename}
                 className="text-blue-600 font-medium hover:underline"
               >
