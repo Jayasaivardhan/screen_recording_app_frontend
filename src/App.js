@@ -16,12 +16,19 @@ function App() {
     return `${mins}:${secs}`;
   };
 
-  // ✅ Load recordings from backend on mount
+  // ✅ Load recordings from backend
+  const loadRecordings = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/recordings`);
+      const data = await res.json();
+      setRecordings(data);
+    } catch (err) {
+      console.error("Error fetching recordings:", err);
+    }
+  };
+
   useEffect(() => {
-    fetch(`${API_BASE}/api/recordings`)
-      .then((res) => res.json())
-      .then((data) => setRecordings(data))
-      .catch((err) => console.error("Error fetching recordings:", err));
+    loadRecordings();
   }, []);
 
   const startRecording = async () => {
@@ -62,10 +69,10 @@ function App() {
             method: "POST",
             body: formData,
           });
-          const data = await res.json();
           if (res.ok) {
-            setRecordings((prev) => [data.recording, ...prev]);
+            await loadRecordings(); // refresh list after upload
           } else {
+            const data = await res.json();
             console.error("Upload failed:", data.error);
           }
         } catch (err) {
@@ -73,7 +80,6 @@ function App() {
         }
 
         setTime(0);
-        clearInterval(timerRef.current);
         combinedStream.getTracks().forEach((track) => track.stop());
       };
 
@@ -96,8 +102,9 @@ function App() {
 
   const stopRecording = () => {
     if (mediaRecorder) {
-      mediaRecorder.stop();
+      clearInterval(timerRef.current); // stop timer immediately
       setRecording(false);
+      mediaRecorder.stop();
     }
   };
 
@@ -155,13 +162,13 @@ function App() {
             className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition"
           >
             <video
-              src={`${API_BASE}/uploads/${rec.filename}`}
+              src={`${API_BASE}/${rec.filepath}`}
               controls
               className="rounded-lg w-full h-40 object-cover bg-black"
             />
             <div className="flex gap-4 mt-3">
               <a
-                href={`${API_BASE}/uploads/${rec.filename}`}
+                href={`${API_BASE}/${rec.filepath}`}
                 download={rec.filename}
                 className="text-blue-600 font-medium hover:underline"
               >
